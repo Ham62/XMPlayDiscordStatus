@@ -87,19 +87,23 @@ static void UpdateStatus(PlayingStatus status) {
 		}
 		case paused: {
 			pszFirstLine = pszFormattedTitle;
-
+			
 			char *pszAlbum = xmpfmisc->GetTag(TAG_ALBUM);
 			char *pszYear = xmpfmisc->GetTag(TAG_DATE);
+			char *pszType = xmpfmisc->GetTag(TAG_FILETYPE);
 
 			static char szBuffer[128];
-			if (conf.showAlbumDate) // Format 2nd line as 'Album (year)'
+			if (pszAlbum == 0)                              // If no album tag, use file type
+				sprintf_s(szBuffer, sizeof(szBuffer), "%s File", pszType);
+			else if (conf.showAlbumDate && pszYear != NULL) // Format 2nd line as 'Album (year)'
 				sprintf_s(szBuffer, sizeof(szBuffer), "%s (%s)\0", pszAlbum, pszYear);
-			else                    // Or just show 'Album'
+			else                                            // Or just show 'Album'
 				sprintf_s(szBuffer, sizeof(szBuffer), "%s\0", pszAlbum);
 			pszSecondLine = szBuffer;
 
 			xmpfmisc->Free(pszAlbum); // Free the tags now that we're done with them
 			xmpfmisc->Free(pszYear);
+			xmpfmisc->Free(pszType);
 			break;
 		}
 		case stopped:
